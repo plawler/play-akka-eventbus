@@ -1,6 +1,6 @@
 package events
 
-import akka.actor.{Props, ActorSystem}
+import akka.actor.{ActorRef, Props, ActorSystem}
 import akka.event.{SubchannelClassification, ActorEventBus}
 import akka.util.Subclassification
 import org.joda.time.DateTime
@@ -43,8 +43,8 @@ object EventBus {
   private lazy val instance = new EventBus
   private lazy val system = ActorSystem("EventBus")
 
-  val storingSubscriber = system.actorOf(Props(new EventStoringSubscriber()))
-  val interestingSubscriber = system.actorOf(Props(new InterestingEventSubscriber()))
+  val storingSubscriber: ActorRef = system.actorOf(Props[EventStoringSubscriber])
+  val interestingSubscriber: ActorRef = system.actorOf(Props[InterestingEventSubscriber])
 
   def apply() = {
     registerSubscribers

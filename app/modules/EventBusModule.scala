@@ -9,10 +9,6 @@ import play.api.Logger
 
 trait EventBusModule {
 
-  val eventBus = {
-    Logger.info("Initializing the EventBus")
-    EventBus()
-  }
+  lazy val eventBus = EventBus()
 
 }
-
