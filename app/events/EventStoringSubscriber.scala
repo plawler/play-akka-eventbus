@@ -9,7 +9,7 @@ import play.api.Logger
 class EventStoringSubscriber extends Actor {
 
   override def receive: Receive = {
-    case event: AlpEvent => Logger.info(s"The EventStoringSubscriber says: ${event.message} @ ${event.timestamp}")
+    case event: AlpEvent => Logger.info(s"The EventStoringSubscriber says: ${event.payload.data} @ ${event.timestamp}")
   }
 
 }
@@ -17,7 +17,7 @@ class EventStoringSubscriber extends Actor {
 class InterestingEventSubscriber extends Actor {
 
   override def receive: Receive = {
-    case event: InterestingEvent => Logger.info(s"The InterestingSubscriber says: ${event.message} @ ${event.timestamp}")
+    case event: InterestingEventCreated => Logger.info(s"The InterestingSubscriber says: ${event.payload.data} @ ${event.timestamp}")
   }
 
 }

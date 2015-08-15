@@ -1,9 +1,7 @@
 package controllers
 
-import events.{GeneralEvent, InterestingEvent}
+import events.{Payload, SimpleEventCreated, InterestingEventCreated}
 import modules.EventBusModule
-import org.joda.time.DateTime
-import play.api._
 import play.api.mvc._
 
 class Application extends Controller with EventBusModule {
@@ -13,12 +11,12 @@ class Application extends Controller with EventBusModule {
   }
 
   def general = Action {
-    eventBus.publish(GeneralEvent("General event!", DateTime.now()))
+    eventBus.publish(SimpleEventCreated(Payload("Simple Event Payload")))
     Ok("Published a general event")
   }
 
   def interesting = Action {
-    eventBus.publish(InterestingEvent("Interesting event!", DateTime.now()))
+    eventBus.publish(InterestingEventCreated(Payload("Interesting event!")))
     Ok("Published an interesting event")
   }
 

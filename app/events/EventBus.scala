@@ -1,25 +1,37 @@
 package events
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, Props, ActorSystem}
 import akka.event.{SubchannelClassification, ActorEventBus}
 import akka.util.Subclassification
 import org.joda.time.DateTime
+import play.api.libs.concurrent.Akka
+
+import play.api.Play.current // required for referencing Play's ActorSystem
 
 /**
  * Created by paullawler on 8/13/15.
  */
 trait AlpEvent {
-  def message: String
-  def retrievePayload: Any
-  def timestamp: DateTime
+  val id: UUID = UUID.randomUUID()
+  val aggregateId: Option[UUID]
+  val timestamp: DateTime = DateTime.now()
+  val eventType: String
+  val version: Int
+  val payload: Payload
 }
 
-case class GeneralEvent(message: String, timestamp: DateTime) extends AlpEvent {
-  override def retrievePayload: Any = "This is my payload"
+case class Payload(data: Any)
+
+case class SimpleEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends AlpEvent {
+  override val eventType = "simple-event-created"
+  override val version = 1
 }
 
-case class InterestingEvent(message: String, timestamp: DateTime) extends AlpEvent {
-  override def retrievePayload: Any = "This is my interesting payload"
+case class InterestingEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends AlpEvent {
+  override val eventType = "interesting-event-created"
+  override val version = 1
 }
 
 class EventBus extends ActorEventBus with SubchannelClassification {
@@ -41,10 +53,10 @@ class EventBus extends ActorEventBus with SubchannelClassification {
 object EventBus {
 
   private lazy val instance = new EventBus
-  private lazy val system = ActorSystem("EventBus")
+//  private lazy val system = ActorSystem("EventBus") // no need for a new ActorSystem. Just use Play's and let it manage the lifecycle
 
-  val storingSubscriber: ActorRef = system.actorOf(Props[EventStoringSubscriber])
-  val interestingSubscriber: ActorRef = system.actorOf(Props[InterestingEventSubscriber])
+  val storingSubscriber: ActorRef = Akka.system.actorOf(Props[EventStoringSubscriber])
+  val interestingSubscriber: ActorRef = Akka.system.actorOf(Props[InterestingEventSubscriber])
 
   def apply() = {
     registerSubscribers
@@ -53,7 +65,7 @@ object EventBus {
 
   def registerSubscribers = {
     instance.subscribe(storingSubscriber, classOf[AlpEvent])
-    instance.subscribe(interestingSubscriber, classOf[InterestingEvent])
+    instance.subscribe(interestingSubscriber, classOf[InterestingEventCreated])
   }
 
 }
