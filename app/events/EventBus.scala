@@ -13,7 +13,7 @@ import play.api.Play.current // required for referencing Play's ActorSystem
 /**
  * Created by paullawler on 8/13/15.
  */
-trait AlpEvent {
+trait BaseEvent {
   val id: UUID = UUID.randomUUID()
   val aggregateId: Option[UUID]
   val timestamp: DateTime = DateTime.now()
@@ -24,20 +24,20 @@ trait AlpEvent {
 
 case class Payload(data: Any)
 
-case class SimpleEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends AlpEvent {
+case class SimpleEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends BaseEvent {
   override val eventType = "simple-event-created"
   override val version = 1
 }
 
-case class InterestingEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends AlpEvent {
+case class InterestingEventCreated(payload: Payload, aggregateId: Option[UUID] = None) extends BaseEvent {
   override val eventType = "interesting-event-created"
   override val version = 1
 }
 
 class EventBus extends ActorEventBus with SubchannelClassification {
 
-  override type Classifier = Class[_ <: AlpEvent]
-  override type Event = AlpEvent
+  override type Classifier = Class[_ <: BaseEvent]
+  override type Event = BaseEvent
 
   override protected implicit def subclassification: Subclassification[Classifier] = new Subclassification[Classifier] {
     def isEqual(x: Classifier, y: Classifier): Boolean = x == y
@@ -64,7 +64,7 @@ object EventBus {
   }
 
   def registerSubscribers = {
-    instance.subscribe(storingSubscriber, classOf[AlpEvent])
+    instance.subscribe(storingSubscriber, classOf[BaseEvent])
     instance.subscribe(interestingSubscriber, classOf[InterestingEventCreated])
   }
 
