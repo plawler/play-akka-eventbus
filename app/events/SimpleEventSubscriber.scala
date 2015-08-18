@@ -6,7 +6,7 @@ import play.api.Logger
 /**
  * Created by paullawler on 8/14/15.
  */
-class EventStoringSubscriber extends Actor with ActorLogging {
+class SimpleEventSubscriber extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case event: BaseEvent =>

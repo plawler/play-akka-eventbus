@@ -34,7 +34,7 @@ case class InterestingEventCreated(payload: Payload, aggregateId: Option[UUID] =
   override val version = 1
 }
 
-class EventBus extends ActorEventBus with SubchannelClassification {
+trait EventBus extends ActorEventBus with SubchannelClassification {
 
   override type Classifier = Class[_ <: BaseEvent]
   override type Event = BaseEvent
@@ -51,21 +51,6 @@ class EventBus extends ActorEventBus with SubchannelClassification {
 }
 
 object EventBus {
-
-  private lazy val instance = new EventBus
-//  private lazy val system = ActorSystem("EventBus") // no need for a new ActorSystem. Just use Play's and let it manage the lifecycle
-
-  val storingSubscriber: ActorRef = Akka.system.actorOf(Props[EventStoringSubscriber])
-  val interestingSubscriber: ActorRef = Akka.system.actorOf(Props[InterestingEventSubscriber])
-
-  def apply() = {
-    registerSubscribers
-    instance
-  }
-
-  def registerSubscribers = {
-    instance.subscribe(storingSubscriber, classOf[BaseEvent])
-    instance.subscribe(interestingSubscriber, classOf[InterestingEventCreated])
-  }
-
+  private lazy val instance = new EventBus{}
+  def apply() = instance
 }
